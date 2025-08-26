@@ -1,0 +1,98 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  font-family: "Roboto Mono", monospace;
+  font-weight: 600;
+  font-style: normal;
+  background-color: greenyellow;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+/* Контейнер */
+.container {
+  width: 95%;
+  max-width: 400px; /* удобно для телефона */
+  text-align: center;
+}
+
+/* Логотип */
+.kauflandTimerLogo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.kauflandTimerLogo img {
+  width: 120px;
+  height: 120px;
+}
+
+/* Таймеры */
+.timerContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  background-color: #fff8;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* Input и кнопка Save */
+.timerContainer input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #999;
+}
+
+.timerContainer button {
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Таймер дисплей */
+.timer-display {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+/* Контролы таймера */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.controls button {
+  flex: 1;
+  font-size: 16px;
+}
+
+/* Адаптив для узких экранов */
+@media (max-width: 400px) {
+  .controls {
+    flex-direction: column;
+  }
+  
+  .controls button {
+    width: 100%;
+  }
+}
