@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
 
 * {
   margin: 0;
@@ -6,133 +6,165 @@
   box-sizing: border-box;
 }
 
-body, html {
+body,
+html {
   font-family: "Roboto Mono", monospace;
-  background: linear-gradient(135deg, #f7b733, #fc4a1a);
+  font-weight: 600;
+  font-style: normal;
+  background: #fc4a1a;
+  background: linear-gradient(to bottom, #f7b733, #fc4a1a);
   width: 100%;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 30px;
+  overflow-x: hidden;
+  padding-top: 20px;
 }
 
+/* Контейнер */
 .container {
   width: 95%;
   max-width: 400px;
   text-align: center;
 }
 
+/* Логотип */
 .kauflandTimerLogo {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .kauflandTimerLogo img {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
+  width: 180px;
+  height: 180px;
+  border-radius: 10%;
+  background: #b4c9b5ce;
   border: 5px solid #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.kauflandTimerLogo h1 {
-  color: #fff;
-  font-size: 2rem;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-}
 
+
+/* Таймеры */
 .timerContainer {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 15px 20px;
   margin-bottom: 20px;
+  background-color: #fff8;
+  padding: 15px;
   border-radius: 15px;
-  background: linear-gradient(135deg, #89f7fe, #66a6ff);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-.input-row {
+/* Input и кнопка Save */
+.inputWrapper {
+  position: relative;
+  width: 100%;
   display: flex;
-  gap: 5px;
 }
 
-.input-row input {
-  flex: 1;
-  padding: 10px;
+.timerContainer input {
+  width: 100%;
+  padding: 10px 40px 10px 10px;
   font-size: 16px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  background-color: rgba(255,255,255,0.8);
-}
-
-.input-row button {
-  padding: 10px;
   border-radius: 8px;
-  border: none;
-  background: #007bff;
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  border: 2px solid #ddd;
+  background: #f9f9f9;
 }
 
-.edit {
+.timerContainer .saveBtn {
   display: none;
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #007991;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.editIcon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #007991;
+  background: none;
+  border: none;
+}
+
+/* Таймер дисплей */
+.timer-display {
+  font-size: 28px;
+  margin: 10px 0;
+  font-weight: bold;
+  color: #333;
+  background: rgba(255, 255, 255, 0.7);
   padding: 8px;
   border-radius: 8px;
-  border: none;
-  background: #ffc107;
-  cursor: pointer;
 }
 
-.edit i {
-  font-size: 16px;
-}
-
-.timer-display {
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-  text-align: center;
-}
-
+/* Контролы таймера */
 .controls {
   display: flex;
-  gap: 5px;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .controls button {
   flex: 1;
   padding: 10px;
+  font-size: 16px;
   border-radius: 8px;
   border: none;
-  font-weight: bold;
   cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
-.controls button.start { background: #28a745; color: #fff; }
-.controls button.pause { background: #ffc107; color: #000; }
-.controls button.reset { background: #dc3545; color: #fff; }
-
-.controls button i {
-  font-size: 18px;
+#startBtn, #startBtn2, #startBtn3 {
+  background: #4CAF50;
+  color: white;
 }
 
+#stopBtn, #stopBtn2, #stopBtn3 {
+  background: #FFC107;
+  color: white;
+}
+
+#resetBtn, #resetBtn2, #resetBtn3 {
+  background: #F44336;
+  color: white;
+}
+
+.controls button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.controls button:active {
+  transform: translateY(0);
+}
+
+/* Адаптив для узких экранов */
 @media (max-width: 400px) {
   .controls {
     flex-direction: column;
   }
+
   .controls button {
     width: 100%;
   }
