@@ -6,11 +6,23 @@
   box-sizing: border-box;
 }
 
-body, html {
+body,
+html {
   font-family: "Roboto Mono", monospace;
   font-weight: 600;
   font-style: normal;
-  background-color: greenyellow;
+  background: #fc4a1a; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to bottom,
+    #f7b733,
+    #fc4a1a
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to bottom,
+    #f7b733,
+    #fc4a1a
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
   width: 100%;
   min-height: 100vh;
   display: flex;
@@ -37,8 +49,16 @@ body, html {
 }
 
 .kauflandTimerLogo img {
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
+background: #007991;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to bottom, #78ffd6, #007991);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to bottom, #78ffd6, #007991); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    border-radius: 50%;
+    Border: 5px solid #fff;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Таймеры */
@@ -91,7 +111,7 @@ body, html {
   .controls {
     flex-direction: column;
   }
-  
+
   .controls button {
     width: 100%;
   }
