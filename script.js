@@ -1,77 +1,75 @@
-// ============================
-// Инициализация таймеров
-// ============================
-const timers = {
-  1: { inputId: "taskInput", displayId: "timerDisplay", startBtnId: "startBtn", stopBtnId: "stopBtn", resetBtnId: "resetBtn", seconds: 0, interval: null },
-  2: { inputId: "taskInput2", displayId: "timerDisplay2", startBtnId: "startBtn2", stopBtnId: "stopBtn2", resetBtnId: "resetBtn2", seconds: 0, interval: null },
-  3: { inputId: "taskInput3", displayId: "timerDisplay3", startBtnId: "startBtn3", stopBtnId: "stopBtn3", resetBtnId: "resetBtn3", seconds: 0, interval: null }
-};
+const timers = document.querySelectorAll(".timerContainer");
 
-// ============================
-// Вспомогательные функции
-// ============================
-function formatTime(totalSeconds) {
-  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-  const seconds = String(totalSeconds % 60).padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
-}
+timers.forEach((timer, index) => {
+  const input = timer.querySelector("input");
+  const display = timer.querySelector(".timer-display");
+  const startBtn = timer.querySelector(".start");
+  const pauseBtn = timer.querySelector(".pause");
+  const resetBtn = timer.querySelector(".reset");
+  const saveBtn = timer.querySelector(".save");
+  const editBtn = timer.querySelector(".edit");
 
-// ============================
-// Загрузка данных из localStorage
-// ============================
-for (let id in timers) {
-  const timer = timers[id];
-  const savedName = localStorage.getItem(`timer${id}-name`);
-  const savedSeconds = localStorage.getItem(`timer${id}-seconds`);
-  const saveDone = localStorage.getItem(`timer${id}-saved`);
+  let seconds = 0;
+  let interval = null;
 
-  const input = document.getElementById(timer.inputId);
-  const display = document.getElementById(timer.displayId);
-  const saveBtn = input.nextElementSibling;
-
-  if (savedName) input.value = savedName;
-  if (savedSeconds) {
-    timer.seconds = parseInt(savedSeconds, 10);
-    display.textContent = formatTime(timer.seconds);
-  }
-  if (saveDone === "true") {
+  // Load saved data
+  const savedName = localStorage.getItem(`timer${index}-name`);
+  const savedSeconds = localStorage.getItem(`timer${index}-seconds`);
+  if(savedName) {
+    input.value = savedName;
     input.readOnly = true;
     saveBtn.style.display = "none";
+    editBtn.style.display = "block";
+  }
+  if(savedSeconds) {
+    seconds = parseInt(savedSeconds,10);
+    display.textContent = formatTime(seconds);
   }
 
-  // ============================
-  // Кнопка Save
-  // ============================
+  // Save button
   saveBtn.addEventListener("click", () => {
     input.readOnly = true;
     saveBtn.style.display = "none";
-    localStorage.setItem(`timer${id}-name`, input.value);
-    localStorage.setItem(`timer${id}-saved`, "true");
+    editBtn.style.display = "block";
+    localStorage.setItem(`timer${index}-name`, input.value);
+    localStorage.setItem(`timer${index}-seconds`, seconds);
   });
 
-  // ============================
-  // Кнопки таймера
-  // ============================
-  document.getElementById(timer.startBtnId).addEventListener("click", () => {
-    if (timer.interval) return;
-    timer.interval = setInterval(() => {
-      timer.seconds++;
-      display.textContent = formatTime(timer.seconds);
-      localStorage.setItem(`timer${id}-seconds`, timer.seconds); // сохраняем прогресс
+  // Edit button
+  editBtn.addEventListener("click", () => {
+    input.readOnly = false;
+    input.focus();
+    editBtn.style.display = "none";
+    saveBtn.style.display = "flex";
+  });
+
+  // Timer functions
+  startBtn.addEventListener("click", () => {
+    if(interval) return;
+    interval = setInterval(() => {
+      seconds++;
+      display.textContent = formatTime(seconds);
+      localStorage.setItem(`timer${index}-seconds`, seconds);
     }, 1000);
   });
 
-  document.getElementById(timer.stopBtnId).addEventListener("click", () => {
-    clearInterval(timer.interval);
-    timer.interval = null;
+  pauseBtn.addEventListener("click", () => {
+    clearInterval(interval);
+    interval = null;
   });
 
-  document.getElementById(timer.resetBtnId).addEventListener("click", () => {
-    clearInterval(timer.interval);
-    timer.interval = null;
-    timer.seconds = 0;
+  resetBtn.addEventListener("click", () => {
+    clearInterval(interval);
+    interval = null;
+    seconds = 0;
     display.textContent = "00:00:00";
-    localStorage.setItem(`timer${id}-seconds`, timer.seconds);
+    localStorage.setItem(`timer${index}-seconds`, seconds);
   });
-}
+
+  function formatTime(sec) {
+    const h = String(Math.floor(sec / 3600)).padStart(2,"0");
+    const m = String(Math.floor((sec % 3600)/60)).padStart(2,"0");
+    const s = String(sec % 60).padStart(2,"0");
+    return `${h}:${m}:${s}`;
+  }
+});

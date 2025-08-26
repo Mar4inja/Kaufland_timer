@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap");
 
 * {
   margin: 0;
@@ -6,112 +6,133 @@
   box-sizing: border-box;
 }
 
-body,
-html {
+body, html {
   font-family: "Roboto Mono", monospace;
-  font-weight: 600;
-  font-style: normal;
-  background: #fc4a1a; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to bottom,
-    #f7b733,
-    #fc4a1a
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to bottom,
-    #f7b733,
-    #fc4a1a
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
+  background: linear-gradient(135deg, #f7b733, #fc4a1a);
   width: 100%;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  overflow-x: hidden;
-  padding-top: 20px;
+  padding-top: 30px;
 }
 
-/* Контейнер */
 .container {
   width: 95%;
-  max-width: 400px; /* удобно для телефона */
+  max-width: 400px;
   text-align: center;
 }
 
-/* Логотип */
 .kauflandTimerLogo {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .kauflandTimerLogo img {
-  width: 160px;
-  height: 160px;
-background: #007991;  /* fallback for old browsers */
-background: -webkit-linear-gradient(to bottom, #78ffd6, #007991);  /* Chrome 10-25, Safari 5.1-6 */
-background: linear-gradient(to bottom, #78ffd6, #007991); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
-    border-radius: 50%;
-    Border: 5px solid #fff;
-    padding: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 5px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-/* Таймеры */
+.kauflandTimerLogo h1 {
+  color: #fff;
+  font-size: 2rem;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+}
+
 .timerContainer {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 15px 20px;
   margin-bottom: 20px;
-  background-color: #fff8;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.input-row {
+  display: flex;
+  gap: 5px;
+}
+
+.input-row input {
+  flex: 1;
   padding: 10px;
+  font-size: 16px;
   border-radius: 10px;
+  border: none;
+  outline: none;
+  background-color: rgba(255,255,255,0.8);
 }
 
-/* Input и кнопка Save */
-.timerContainer input {
-  width: 100%;
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 5px;
-  border: 1px solid #999;
+.input-row button {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.timerContainer button {
+.edit {
+  display: none;
   padding: 8px;
-  font-size: 16px;
-  border-radius: 5px;
+  border-radius: 8px;
+  border: none;
+  background: #ffc107;
   cursor: pointer;
 }
 
-/* Таймер дисплей */
-.timer-display {
-  font-size: 24px;
-  margin: 10px 0;
+.edit i {
+  font-size: 16px;
 }
 
-/* Контролы таймера */
+.timer-display {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+  text-align: center;
+}
+
 .controls {
   display: flex;
-  justify-content: space-between;
   gap: 5px;
 }
 
 .controls button {
   flex: 1;
-  font-size: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Адаптив для узких экранов */
+.controls button.start { background: #28a745; color: #fff; }
+.controls button.pause { background: #ffc107; color: #000; }
+.controls button.reset { background: #dc3545; color: #fff; }
+
+.controls button i {
+  font-size: 18px;
+}
+
 @media (max-width: 400px) {
   .controls {
     flex-direction: column;
   }
-
   .controls button {
     width: 100%;
   }

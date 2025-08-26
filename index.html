@@ -1,63 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="styles.css" />
-  <title>KauflandTimer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaufland Timer</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
 <body>
   <div class="bg">
     <div class="container">
-
-      <!-- Логотип -->
       <div class="kauflandTimerLogo">
-        <img src="image/fef498e520a904df12c6dea732613be8.png" alt="Kaufland" />
+        <img src="image/fef498e520a904df12c6dea732613be8.png" alt="Kaufland">
         <h1>Timer</h1>
       </div>
 
-      <!-- Таймер 1 -->
-      <div class="timerContainer">
-        <input type="text" id="taskInput" placeholder="Order name..." />
-        <button>Save</button>
-        <div class="timer-display" id="timerDisplay">00:00:00</div>
+      <!-- Таймери -->
+      <div class="timerContainer" id="timer1">
+        <div class="input-row">
+          <input type="text" placeholder="Order name 1" />
+          <button class="save"><i class="fas fa-save"></i></button>
+        </div>
+        <button class="edit"><i class="fas fa-edit"></i></button>
+        <div class="timer-display">00:00:00</div>
         <div class="controls">
-          <button id="startBtn">Start</button>
-          <button id="stopBtn">Pause</button>
-          <button id="resetBtn">Stop</button>
+          <button class="start"><i class="fas fa-play"></i></button>
+          <button class="pause"><i class="fas fa-pause"></i></button>
+          <button class="reset"><i class="fas fa-stop"></i></button>
         </div>
       </div>
 
-      <!-- Таймер 2 -->
-      <div class="timerContainer">
-        <input type="text" id="taskInput2" placeholder="Order name..." />
-        <button>Save</button>
-        <div class="timer-display" id="timerDisplay2">00:00:00</div>
+      <div class="timerContainer" id="timer2">
+        <div class="input-row">
+          <input type="text" placeholder="Order name 2" />
+          <button class="save"><i class="fas fa-save"></i></button>
+        </div>
+        <button class="edit"><i class="fas fa-edit"></i></button>
+        <div class="timer-display">00:00:00</div>
         <div class="controls">
-          <button id="startBtn2">Start</button>
-          <button id="stopBtn2">Pause</button>
-          <button id="resetBtn2">Stop</button>
+          <button class="start"><i class="fas fa-play"></i></button>
+          <button class="pause"><i class="fas fa-pause"></i></button>
+          <button class="reset"><i class="fas fa-stop"></i></button>
         </div>
       </div>
 
-      <!-- Таймер 3 -->
-      <div class="timerContainer">
-        <input type="text" id="taskInput3" placeholder="Order name..." />
-        <button>Save</button>
-        <div class="timer-display" id="timerDisplay3">00:00:00</div>
+      <div class="timerContainer" id="timer3">
+        <div class="input-row">
+          <input type="text" placeholder="Order name 3" />
+          <button class="save"><i class="fas fa-save"></i></button>
+        </div>
+        <button class="edit"><i class="fas fa-edit"></i></button>
+        <div class="timer-display">00:00:00</div>
         <div class="controls">
-          <button id="startBtn3">Start</button>
-          <button id="stopBtn3">Pause</button>
-          <button id="resetBtn3">Stop</button>
+          <button class="start"><i class="fas fa-play"></i></button>
+          <button class="pause"><i class="fas fa-pause"></i></button>
+          <button class="reset"><i class="fas fa-stop"></i></button>
         </div>
       </div>
 
     </div>
   </div>
-
   <script src="script.js"></script>
 </body>
-
 </html>
