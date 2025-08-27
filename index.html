@@ -1,73 +1,802 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="styles.css" />
-  <title>KauflandTimer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaufland Timer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #005792 0%, #002B4F 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 20px;
+        }
+        
+        .kauflandTimerLogo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #83fc4c;
+            border-radius: 10px;
+            border: 2px solid #3df365;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .kauflandTimerLogo img {
+            height: 170px;
+            margin-right: 15px;
+        }
+        
+        .kauflandTimerLogo h1 {
+            color: #002B4F;
+            font-size: 36px;
+            font-weight: 700;
+        }
+        
+        .timers-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        
+        .timerContainer {
+            flex: 1;
+            min-width: 300px;
+            background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        
+        .timerContainer:hover {
+            transform: translateY(-5px);
+        }
+        
+        .inputWrapper {
+            display: flex;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .inputWrapper input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .inputWrapper input:focus {
+            border-color: #005792;
+        }
+        
+        .inputWrapper input:read-only {
+            background-color: #f9f9f9;
+        }
+        
+        .saveBtn, .editIcon {
+            background: #005792;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: ease-in-out 0.3s;
+        }
+        
+        .saveBtn:hover, .editIcon:hover {
+            background: #003D5F;
+        }
+        
+        .saveBtn {
+            display: none;
+        }
+        
+        .timer-display {
+            font-size: 42px;
+            text-align: center;
+            font-weight: 700;
+            color: #002B4F;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 87, 146, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .controls button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .startBtn {
+            background: #28a745;
+        }
+        
+        .startBtn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        
+        .stopBtn {
+            background: #dc3545;
+        }
+        
+        .stopBtn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .resetBtn {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .resetBtn:hover {
+            background: #e0a800;
+            transform: scale(1.05);
+        }
+        
+        .addBtn {
+            background: #005792;
+        }
+        
+        .addBtn:hover {
+            background: #003D5F;
+            transform: scale(1.05);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #002B4F;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        #saveOrderBtn {
+            width: 100%;
+            padding: 12px;
+            background: #005792;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: ease-in-out 0.3s;
+        }
+        
+        #saveOrderBtn:hover {
+            background: #003D5F;
+        }
+        
+        .orders-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .orders-section h2 {
+            color: #002B4F;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #005792;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .clear-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: ease-in-out 0.3s;
+        }
+        
+        .clear-btn:hover {
+            background: #c82333;
+        }
+        
+        .history-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 25px;
+            background: #005792;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: ease-in-out 0.3s;
+        }
+        
+        .history-btn:hover {
+            background: #003D5F;
+        }
+        
+        @media (max-width: 768px) {
+            .timers-container {
+                flex-direction: column;
+            }
+            
+            .timerContainer {
+                min-width: 100%;
+            }
+            
+            .controls button {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .timer-display {
+                font-size: 32px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <div class="bg">
     <div class="container">
-
-      <!-- Логотип -->
-      <div class="kauflandTimerLogo">
-        <img src="image/fef498e520a904df12c6dea732613be8.png" alt="Kaufland" />
-
-      </div>
-
-      <!-- Таймер 1 -->
-      <div class="timerContainer">
-        <div class="inputWrapper">
-          <input type="text" id="taskInput" placeholder="Order name..." readonly />
-          <button class="saveBtn"><i class="fas fa-check"></i></button>
-          <button class="editIcon"><i class="fas fa-edit"></i></button>
+        <div class="kauflandTimerLogo">
+            <img src="image/fef498e520a904df12c6dea732613be8.png" alt="Kaufland" />
+        
         </div>
-        <div class="timer-display" id="timerDisplay">00:00:00</div>
-        <div class="controls">
-          <button id="startBtn"><i class="fas fa-play"></i></button>
-          <button id="stopBtn"><i class="fas fa-pause"></i></button>
-          <button id="resetBtn"><i class="fas fa-stop"></i></button>
-        </div>
-      </div>
 
-      <!-- Таймер 2 -->
-      <div class="timerContainer">
-        <div class="inputWrapper">
-          <input type="text" id="taskInput2" placeholder="Order name..." readonly />
-          <button class="saveBtn"><i class="fas fa-check"></i></button>
-          <button class="editIcon"><i class="fas fa-edit"></i></button>
-        </div>
-        <div class="timer-display" id="timerDisplay2">00:00:00</div>
-        <div class="controls">
-          <button id="startBtn2"><i class="fas fa-play"></i></button>
-          <button id="stopBtn2"><i class="fas fa-pause"></i></button>
-          <button id="resetBtn2"><i class="fas fa-stop"></i></button>
-        </div>
-      </div>
+        <div class="timers-container">
+            <!-- Таймер 1 -->
+            <div class="timerContainer" id="timer1">
+                <div class="inputWrapper">
+                    <input type="text" id="taskInput1" placeholder="Название заказа..." readonly />
+                    <button class="saveBtn"><i class="fas fa-check"></i></button>
+                    <button class="editIcon"><i class="fas fa-edit"></i></button>
+                </div>
+                <div class="timer-display" id="timerDisplay1">00:00:00</div>
+                <div class="controls">
+                    <button class="startBtn"><i class="fas fa-play"></i></button>
+                    <button class="stopBtn"><i class="fas fa-pause"></i></button>
+                    <button class="resetBtn"><i class="fas fa-stop"></i></button>
+                    <button class="addBtn"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
 
-      <!-- Таймер 3 -->
-      <div class="timerContainer">
-        <div class="inputWrapper">
-          <input type="text" id="taskInput3" placeholder="Order name..." readonly />
-          <button class="saveBtn"><i class="fas fa-check"></i></button>
-          <button class="editIcon"><i class="fas fa-edit"></i></button>
-        </div>
-        <div class="timer-display" id="timerDisplay3">00:00:00</div>
-        <div class="controls">
-          <button id="startBtn3"><i class="fas fa-play"></i></button>
-          <button id="stopBtn3"><i class="fas fa-pause"></i></button>
-          <button id="resetBtn3"><i class="fas fa-stop"></i></button>
-        </div>
-      </div>
+            <!-- Таймер 2 -->
+            <div class="timerContainer" id="timer2">
+                <div class="inputWrapper">
+                    <input type="text" id="taskInput2" placeholder="Название заказа..." readonly />
+                    <button class="saveBtn"><i class="fas fa-check"></i></button>
+                    <button class="editIcon"><i class="fas fa-edit"></i></button>
+                </div>
+                <div class="timer-display" id="timerDisplay2">00:00:00</div>
+                <div class="controls">
+                    <button class="startBtn"><i class="fas fa-play"></i></button>
+                    <button class="stopBtn"><i class="fas fa-pause"></i></button>
+                    <button class="resetBtn"><i class="fas fa-stop"></i></button>
+                    <button class="addBtn"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
 
+            <!-- Таймер 3 -->
+            <div class="timerContainer" id="timer3">
+                <div class="inputWrapper">
+                    <input type="text" id="taskInput3" placeholder="Название заказа..." readonly />
+                    <button class="saveBtn"><i class="fas fa-check"></i></button>
+                    <button class="editIcon"><i class="fas fa-edit"></i></button>
+                </div>
+                <div class="timer-display" id="timerDisplay3">00:00:00</div>
+                <div class="controls">
+                    <button class="startBtn"><i class="fas fa-play"></i></button>
+                    <button class="stopBtn"><i class="fas fa-pause"></i></button>
+                    <button class="resetBtn"><i class="fas fa-stop"></i></button>
+                    <button class="addBtn"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно для добавления заказа -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Добавить выполненный заказ</h2>
+                <div class="form-group">
+                    <label for="quantity">Количество штук:</label>
+                    <input type="number" id="quantity" min="1" value="1">
+                </div>
+                <button id="saveOrderBtn">Сохранить</button>
+            </div>
+        </div>
+
+        <!-- Таблица с историей заказов -->
+        <div class="orders-section">
+            <h2>История заказов</h2>
+            <div class="table-container">
+                <table id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>Заказ</th>
+                            <th>Время</th>
+                            <th>Количество</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersBody">
+                        <!-- Данные будут добавляться через JS -->
+                    </tbody>
+                </table>
+            </div>
+            <button id="clearHistoryBtn" class="clear-btn">Очистить историю</button>
+        </div>
+
+        <!-- Кнопка для перехода на страницу истории -->
+        <button id="viewHistoryBtn" class="history-btn">История заказов</button>
     </div>
-  </div>
 
-  <script src="script.js"></script>
+    <script>
+        // Класс для управления таймером
+        class Timer {
+            constructor(id, taskInputId, displayId) {
+                this.id = id; // id таймера
+                this.seconds = 0; // количество секунд
+                this.interval = null; // хранит setInterval
+                this.lastUpdateTime = Date.now(); // время последнего обновления
+                this.isRunning = false; // флаг запущен ли таймер
+                this.isPaused = false; // флаг стоит ли таймер на паузе
+                this.orderName = ""; // имя заказа
+
+                // Элементы из DOM
+                this.container = document.getElementById(`timer${id}`);
+                this.taskInput = document.getElementById(taskInputId);
+                this.display = document.getElementById(displayId);
+                this.startBtn = this.container.querySelector('.startBtn');
+                this.stopBtn = this.container.querySelector('.stopBtn');
+                this.resetBtn = this.container.querySelector('.resetBtn');
+                this.addBtn = this.container.querySelector('.addBtn');
+                this.saveBtn = this.container.querySelector('.saveBtn');
+                this.editIcon = this.container.querySelector('.editIcon');
+
+                // Загружаем данные из localStorage
+                this.loadSavedData();
+
+                // Обновляем дисплей и вешаем события
+                this.updateDisplay();
+                this.setupEventListeners();
+            }
+
+            // Загружаем сохранённые данные из localStorage
+            loadSavedData() {
+                const savedSeconds = localStorage.getItem(`timer${this.id}-seconds`);
+                const savedName = localStorage.getItem(`timer${this.id}-name`);
+                const savedState = localStorage.getItem(`timer${this.id}-state`);
+                const savedTimestamp = localStorage.getItem(`timer${this.id}-timestamp`);
+
+                if (savedSeconds) this.seconds = parseInt(savedSeconds, 10);
+                if (savedName) {
+                    this.taskInput.value = savedName;
+                    this.orderName = savedName;
+                }
+
+                if (savedState === 'running' && savedTimestamp) {
+                    const timeDiff = Math.floor((Date.now() - parseInt(savedTimestamp)) / 1000);
+                    this.seconds += timeDiff;
+                    this.start();
+                } else if (savedState === 'paused') {
+                    this.isPaused = true;
+                    this.addBtn.style.display = 'block';
+                }
+            }
+
+            // Вешаем обработчики кнопок
+            setupEventListeners() {
+                this.startBtn.addEventListener('click', () => this.start());
+                this.stopBtn.addEventListener('click', () => this.stop());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                this.addBtn.addEventListener('click', () => this.openAddModal());
+
+                this.editIcon.addEventListener('click', () => {
+                    this.taskInput.readOnly = false;
+                    this.taskInput.focus();
+                    this.saveBtn.style.display = 'block';
+                    this.editIcon.style.display = 'none';
+                });
+
+                this.saveBtn.addEventListener('click', () => {
+                    this.taskInput.readOnly = true;
+                    this.saveBtn.style.display = 'none';
+                    this.editIcon.style.display = 'block';
+                    this.orderName = this.taskInput.value;
+                    localStorage.setItem(`timer${this.id}-name`, this.orderName);
+                });
+            }
+
+            // Форматируем секунды в HH:MM:SS
+            formatTime(totalSeconds) {
+                const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+                const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+                const seconds = String(totalSeconds % 60).padStart(2, "0");
+                return `${hours}:${minutes}:${seconds}`;
+            }
+
+            // Обновляем отображение времени
+            updateDisplay() {
+                this.display.textContent = this.formatTime(this.seconds);
+            }
+
+            // Запуск таймера
+            start() {
+                if (this.interval) return;
+
+                this.isRunning = true;
+                this.isPaused = false;
+                this.lastUpdateTime = Date.now();
+
+                this.addBtn.style.display = 'none';
+
+                this.interval = setInterval(() => {
+                    const now = Date.now();
+                    const diff = Math.floor((now - this.lastUpdateTime) / 1000);
+                    if (diff > 0) {
+                        this.seconds += diff;
+                        this.lastUpdateTime = now;
+                        this.updateDisplay();
+                        localStorage.setItem(`timer${this.id}-seconds`, this.seconds);
+                    }
+                }, 200);
+
+                localStorage.setItem(`timer${this.id}-state`, 'running');
+                localStorage.setItem(`timer${this.id}-timestamp`, Date.now());
+            }
+
+            // Остановка (пауза)
+            stop() {
+                if (!this.interval) return;
+
+                clearInterval(this.interval);
+                this.interval = null;
+                this.isRunning = false;
+                this.isPaused = true;
+
+                this.addBtn.style.display = 'block';
+
+                localStorage.setItem(`timer${this.id}-state`, 'paused');
+                localStorage.removeItem(`timer${this.id}-timestamp`);
+            }
+
+            // Сброс таймера
+            reset() {
+                this.stop();
+                this.seconds = 0;
+                this.isPaused = false;
+                this.updateDisplay();
+                localStorage.setItem(`timer${this.id}-seconds`, this.seconds);
+                localStorage.setItem(`timer${this.id}-state`, 'stopped');
+                localStorage.removeItem(`timer${this.id}-timestamp`);
+
+                this.addBtn.style.display = 'none';
+            }
+
+            // Открыть модальное окно добавления заказа
+            openAddModal() {
+                if (!this.isPaused) return;
+
+                localStorage.setItem('currentTimerId', this.id);
+
+                modal.style.display = 'block';
+            }
+
+            // Сохранение заказа
+            saveOrder(quantity) {
+                const order = {
+                    timerId: this.id,
+                    name: this.orderName || 'Без названия',
+                    time: this.formatTime(this.seconds),
+                    quantity: quantity,
+                    date: new Date().toISOString()
+                };
+
+                const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
+
+                orders.push(order);
+
+                localStorage.setItem('timerOrders', JSON.stringify(orders));
+
+                this.reset();
+            }
+        }
+
+        // Глобальные переменные для трёх таймеров и модалки
+        let timer1, timer2, timer3;
+        let modal, closeModal, quantityInput, saveOrderBtn;
+
+        // Инициализация после загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            timer1 = new Timer(1, 'taskInput1', 'timerDisplay1');
+            timer2 = new Timer(2, 'taskInput2', 'timerDisplay2');
+            timer3 = new Timer(3, 'taskInput3', 'timerDisplay3');
+
+            modal = document.getElementById('modal');
+            closeModal = document.querySelector('.close');
+            quantityInput = document.getElementById('quantity');
+            saveOrderBtn = document.getElementById('saveOrderBtn');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+
+            closeModal.addEventListener('click', closeModalFunc);
+            saveOrderBtn.addEventListener('click', saveOrderHandler);
+            clearHistoryBtn.addEventListener('click', clearHistory);
+            viewHistoryBtn.addEventListener('click', viewHistory);
+
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModalFunc();
+                }
+            });
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
+            window.addEventListener('blur', handleWindowBlur);
+            window.addEventListener('focus', handleWindowFocus);
+
+            // Загружаем историю заказов
+            loadOrders();
+        });
+
+        // Закрыть модалку
+        function closeModalFunc() {
+            modal.style.display = 'none';
+        }
+
+        // Сохранить заказ
+        function saveOrderHandler() {
+            const quantity = parseInt(quantityInput.value);
+            if (isNaN(quantity) || quantity <= 0) {
+                alert('Пожалуйста, введите корректное количество');
+                return;
+            }
+
+            const timerId = localStorage.getItem('currentTimerId');
+
+            if (timerId === '1') {
+                timer1.saveOrder(quantity);
+            } else if (timerId === '2') {
+                timer2.saveOrder(quantity);
+            } else if (timerId === '3') {
+                timer3.saveOrder(quantity);
+            }
+
+            closeModalFunc();
+            loadOrders(); // Обновляем таблицу заказов
+
+            quantityInput.value = 1;
+        }
+
+        // Загрузить заказы в таблицу
+        function loadOrders() {
+            const ordersBody = document.getElementById('ordersBody');
+            ordersBody.innerHTML = '';
+            
+            const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
+            
+            if (orders.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="3" style="text-align: center;">Нет сохраненных заказов</td>`;
+                ordersBody.appendChild(row);
+                return;
+            }
+            
+            // Сортируем заказы по дате (новые сверху)
+            orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.name}</td>
+                    <td>${order.time}</td>
+                    <td>${order.quantity} шт.</td>
+                `;
+                ordersBody.appendChild(row);
+            });
+        }
+
+        // Очистить историю
+        function clearHistory() {
+            if (confirm('Вы уверены, что хотите очистить историю заказов?')) {
+                localStorage.removeItem('timerOrders');
+                loadOrders();
+            }
+        }
+
+        // Переход на страницу истории
+        function viewHistory() {
+            // Сохраняем данные в localStorage для передачи на другую страницу
+            localStorage.setItem('fromMainPage', 'true');
+            
+            // Открываем новую страницу с историей
+            window.open('orders-history.html', '_blank');
+        }
+
+        // Обработка скрытия/открытия вкладки
+        function handleVisibilityChange() {
+            const timers = [timer1, timer2, timer3];
+
+            timers.forEach(timer => {
+                if (document.hidden && timer.isRunning) {
+                    localStorage.setItem(`timer${timer.id}-timestamp`, Date.now());
+                } else if (!document.hidden && timer.isRunning) {
+                    const savedTime = localStorage.getItem(`timer${timer.id}-timestamp`);
+                    if (savedTime) {
+                        const timeDiff = Math.floor((Date.now() - parseInt(savedTime)) / 1000);
+                        timer.seconds += timeDiff;
+                        timer.lastUpdateTime = Date.now();
+                        timer.updateDisplay();
+                        localStorage.setItem(`timer${timer.id}-seconds`, timer.seconds);
+                        localStorage.setItem(`timer${timer.id}-timestamp`, Date.now());
+                    }
+                }
+            });
+        }
+
+        // Обработка ухода из окна
+        function handleWindowBlur() {
+            const timers = [timer1, timer2, timer3];
+
+            timers.forEach(timer => {
+                if (timer.isRunning) {
+                    localStorage.setItem(`timer${timer.id}-timestamp`, Date.now());
+                }
+            });
+        }
+
+        // Обработка возврата в окно
+        function handleWindowFocus() {
+            const timers = [timer1, timer2, timer3];
+
+            timers.forEach(timer => {
+                if (timer.isRunning) {
+                    const savedTime = localStorage.getItem(`timer${timer.id}-timestamp`);
+                    if (savedTime) {
+                        const timeDiff = Math.floor((Date.now() - parseInt(savedTime)) / 1000);
+                        if (timeDiff > 0) {
+                            timer.seconds += timeDiff;
+                            timer.lastUpdateTime = Date.now();
+                            timer.updateDisplay();
+                            localStorage.setItem(`timer${timer.id}-seconds`, timer.seconds);
+                        }
+                    }
+                    localStorage.setItem(`timer${timer.id}-timestamp`, Date.now());
+                }
+            });
+        }
+    </script>
 </body>
-
 </html>

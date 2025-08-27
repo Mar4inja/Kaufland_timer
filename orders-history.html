@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История заказов - Kaufland Timer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #005792 0%, #002B4F 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 60px;
+            margin-right: 15px;
+        }
+        
+        .logo h1 {
+            color: #002B4F;
+            font-size: 36px;
+            font-weight: 700;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: #005792;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background: #003D5F;
+        }
+        
+        .orders-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .orders-section h2 {
+            color: #002B4F;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #005792;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .clear-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .clear-btn:hover {
+            background: #c82333;
+        }
+        
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #005792;
+        }
+        
+        .summary h3 {
+            color: #002B4F;
+            margin-bottom: 10px;
+        }
+        
+        .summary p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kaufland_201x_logo.svg/1200px-Kaufland_201x_logo.svg.png" alt="Kaufland" />
+                <h1>История заказов</h1>
+            </div>
+            <a href="javascript:window.close()" class="back-btn">Вернуться к таймеру</a>
+        </div>
+
+        <div class="orders-section">
+            <h2>Все выполненные заказы</h2>
+            <div class="table-container">
+                <table id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>Заказ</th>
+                            <th>Время</th>
+                            <th>Количество</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersBody">
+                        <!-- Данные будут добавляться через JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="summary">
+                <h3>Статистика</h3>
+                <p id="totalOrders">Всего заказов: 0</p>
+                <p id="totalItems">Всего единиц: 0</p>
+                <p id="totalTime">Общее время: 00:00:00</p>
+            </div>
+            
+            <button id="clearHistoryBtn" class="clear-btn">Очистить историю</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ordersBody = document.getElementById('ordersBody');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const totalOrdersEl = document.getElementById('totalOrders');
+            const totalItemsEl = document.getElementById('totalItems');
+            const totalTimeEl = document.getElementById('totalTime');
+            
+            // Загружаем историю заказов
+            loadOrders();
+            
+            // Очистить историю
+            clearHistoryBtn.addEventListener('click', function() {
+                if (confirm('Вы уверены, что хотите очистить историю заказов?')) {
+                    localStorage.removeItem('timerOrders');
+                    loadOrders();
+                }
+            });
+            
+            function loadOrders() {
+                ordersBody.innerHTML = '';
+                
+                const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
+                
+                if (orders.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="4" style="text-align: center;">Нет сохраненных заказов</td>`;
+                    ordersBody.appendChild(row);
+                    
+                    // Обновляем статистику
+                    totalOrdersEl.textContent = 'Всего заказов: 0';
+                    totalItemsEl.textContent = 'Всего единиц: 0';
+                    totalTimeEl.textContent = 'Общее время: 00:00:00';
+                    return;
+                }
+                
+                // Сортируем заказы по дате (новые сверху)
+                orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                let totalItems = 0;
+                let totalSeconds = 0;
+                
+                orders.forEach(order => {
+                    const row = document.createElement('tr');
+                    const date = new Date(order.date);
+                    const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                    
+                    row.innerHTML = `
+                        <td>${order.name}</td>
+                        <td>${order.time}</td>
+                        <td>${order.quantity} шт.</td>
+                        <td>${formattedDate}</td>
+                    `;
+                    ordersBody.appendChild(row);
+                    
+                    // Считаем общую статистику
+                    totalItems += parseInt(order.quantity);
+                    
+                    // Преобразуем время в секунды
+                    const timeParts = order.time.split(':');
+                    const hours = parseInt(timeParts[0]);
+                    const minutes = parseInt(timeParts[1]);
+                    const seconds = parseInt(timeParts[2]);
+                    totalSeconds += hours * 3600 + minutes * 60 + seconds;
+                });
+                
+                // Форматируем общее время
+                const totalHours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+                const totalMinutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+                const totalSecs = String(totalSeconds % 60).padStart(2, "0");
+                const totalTimeFormatted = `${totalHours}:${totalMinutes}:${totalSecs}`;
+                
+                // Обновляем статистику
+                totalOrdersEl.textContent = `Всего заказов: ${orders.length}`;
+                totalItemsEl.textContent = `Всего единиц: ${totalItems}`;
+                totalTimeEl.textContent = `Общее время: ${totalTimeFormatted}`;
+            }
+        });
+    </script>
+</body>
+</html>
