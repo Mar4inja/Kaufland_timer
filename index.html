@@ -36,14 +36,14 @@
             justify-content: center;
             margin-bottom: 30px;
             padding: 20px;
-            background: #83fc4c;
+            background: #2be705;
             border-radius: 10px;
-            border: 2px solid #3df365;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border: solid 2px #a5bdd1;
         }
         
         .kauflandTimerLogo img {
-            height: 170px;
+            height: 180px;
             margin-right: 15px;
         }
         
@@ -113,7 +113,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: ease-in-out 0.3s;
+            transition: background 0.3s;
         }
         
         .saveBtn:hover, .editIcon:hover {
@@ -247,7 +247,7 @@
             font-weight: 600;
         }
         
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
@@ -264,7 +264,7 @@
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
-            transition: ease-in-out 0.3s;
+            transition: background 0.3s;
         }
         
         #saveOrderBtn:hover {
@@ -324,7 +324,7 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: ease-in-out 0.3s;
+            transition: background 0.3s;
         }
         
         .clear-btn:hover {
@@ -341,11 +341,39 @@
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
-            transition: ease-in-out 0.3s;
+            transition: background 0.3s;
         }
         
         .history-btn:hover {
             background: #003D5F;
+        }
+        
+        .statistics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .statistics-card {
+            flex: 1;
+            min-width: 250px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .statistics-card h3 {
+            color: #002B4F;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #005792;
+        }
+        
+        .statistics-card p {
+            margin: 8px 0;
+            font-size: 15px;
         }
         
         @media (max-width: 768px) {
@@ -365,14 +393,18 @@
             .timer-display {
                 font-size: 32px;
             }
+            
+            .statistics {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="kauflandTimerLogo">
-            <img src="image/fef498e520a904df12c6dea732613be8.png" alt="Kaufland" />
-        
+            <img src="/image/fef498e520a904df12c6dea732613be8.png" alt="Kaufland" />
+    
         </div>
 
         <div class="timers-container">
@@ -431,6 +463,15 @@
                 <span class="close">&times;</span>
                 <h2>Добавить выполненный заказ</h2>
                 <div class="form-group">
+                    <label for="orderType">Тип заказа:</label>
+                    <select id="orderType">
+                        <option value="KKP">KKP</option>
+                        <option value="EUR">EUR</option>
+                        <option value="MIXGP">MIXGP</option>
+                        <option value="OTHER">Другой</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="quantity">Количество штук:</label>
                     <input type="number" id="quantity" min="1" value="1">
                 </div>
@@ -446,6 +487,7 @@
                     <thead>
                         <tr>
                             <th>Заказ</th>
+                            <th>Тип</th>
                             <th>Время</th>
                             <th>Количество</th>
                         </tr>
@@ -455,11 +497,50 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Статистика -->
+            <div class="statistics">
+                <div class="statistics-card" id="totalStats">
+                    <h3>Общая статистика</h3>
+                    <p id="totalOrders">Всего заказов: 0</p>
+                    <p id="totalItems">Всего единиц: 0</p>
+                    <p id="totalTime">Общее время: 00:00:00</p>
+                </div>
+                
+                <div class="statistics-card" id="kkpStats">
+                    <h3>KKP</h3>
+                    <p id="kkpOrders">Заказов: 0</p>
+                    <p id="kkpItems">Единиц: 0</p>
+                    <p id="kkpTime">Время: 00:00:00</p>
+                </div>
+                
+                <div class="statistics-card" id="eurStats">
+                    <h3>EUR</h3>
+                    <p id="eurOrders">Заказов: 0</p>
+                    <p id="eurItems">Единиц: 0</p>
+                    <p id="eurTime">Время: 00:00:00</p>
+                </div>
+                
+                <div class="statistics-card" id="mixgpStats">
+                    <h3>MIXGP</h3>
+                    <p id="mixgpOrders">Заказов: 0</p>
+                    <p id="mixgpItems">Единиц: 0</p>
+                    <p id="mixgpTime">Время: 00:00:00</p>
+                </div>
+                
+                <div class="statistics-card" id="otherStats">
+                    <h3>Другие</h3>
+                    <p id="otherOrders">Заказов: 0</p>
+                    <p id="otherItems">Единиц: 0</p>
+                    <p id="otherTime">Время: 00:00:00</p>
+                </div>
+            </div>
+            
             <button id="clearHistoryBtn" class="clear-btn">Очистить историю</button>
         </div>
 
         <!-- Кнопка для перехода на страницу истории -->
-        <button id="viewHistoryBtn" class="history-btn">История заказов</button>
+        <button id="viewHistoryBtn" class="history-btn">Полная история заказов</button>
     </div>
 
     <script>
@@ -615,10 +696,11 @@
             }
 
             // Сохранение заказа
-            saveOrder(quantity) {
+            saveOrder(orderType, quantity) {
                 const order = {
                     timerId: this.id,
                     name: this.orderName || 'Без названия',
+                    type: orderType,
                     time: this.formatTime(this.seconds),
                     quantity: quantity,
                     date: new Date().toISOString()
@@ -636,7 +718,7 @@
 
         // Глобальные переменные для трёх таймеров и модалки
         let timer1, timer2, timer3;
-        let modal, closeModal, quantityInput, saveOrderBtn;
+        let modal, closeModal, orderTypeSelect, quantityInput, saveOrderBtn;
 
         // Инициализация после загрузки DOM
         document.addEventListener('DOMContentLoaded', function() {
@@ -646,6 +728,7 @@
 
             modal = document.getElementById('modal');
             closeModal = document.querySelector('.close');
+            orderTypeSelect = document.getElementById('orderType');
             quantityInput = document.getElementById('quantity');
             saveOrderBtn = document.getElementById('saveOrderBtn');
             const clearHistoryBtn = document.getElementById('clearHistoryBtn');
@@ -678,7 +761,9 @@
 
         // Сохранить заказ
         function saveOrderHandler() {
+            const orderType = orderTypeSelect.value;
             const quantity = parseInt(quantityInput.value);
+            
             if (isNaN(quantity) || quantity <= 0) {
                 alert('Пожалуйста, введите корректное количество');
                 return;
@@ -687,45 +772,114 @@
             const timerId = localStorage.getItem('currentTimerId');
 
             if (timerId === '1') {
-                timer1.saveOrder(quantity);
+                timer1.saveOrder(orderType, quantity);
             } else if (timerId === '2') {
-                timer2.saveOrder(quantity);
+                timer2.saveOrder(orderType, quantity);
             } else if (timerId === '3') {
-                timer3.saveOrder(quantity);
+                timer3.saveOrder(orderType, quantity);
             }
 
             closeModalFunc();
-            loadOrders(); // Обновляем таблицу заказов
+            loadOrders(); // Обновляем таблицу заказов и статистику
 
             quantityInput.value = 1;
         }
 
-        // Загрузить заказы в таблицу
+        // Загрузить заказы в таблицу и обновить статистику
         function loadOrders() {
             const ordersBody = document.getElementById('ordersBody');
             ordersBody.innerHTML = '';
             
             const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
             
+            // Статистика
+            let totalOrders = 0;
+            let totalItems = 0;
+            let totalSeconds = 0;
+            
+            // Статистика по типам
+            const typeStats = {
+                'KKP': { orders: 0, items: 0, seconds: 0 },
+                'EUR': { orders: 0, items: 0, seconds: 0 },
+                'MIXGP': { orders: 0, items: 0, seconds: 0 },
+                'OTHER': { orders: 0, items: 0, seconds: 0 }
+            };
+            
             if (orders.length === 0) {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="3" style="text-align: center;">Нет сохраненных заказов</td>`;
+                row.innerHTML = `<td colspan="4" style="text-align: center;">Нет сохраненных заказов</td>`;
                 ordersBody.appendChild(row);
-                return;
+            } else {
+                // Сортируем заказы по дате (новые сверху)
+                orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                orders.forEach(order => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${order.name}</td>
+                        <td>${order.type}</td>
+                        <td>${order.time}</td>
+                        <td>${order.quantity} шт.</td>
+                    `;
+                    ordersBody.appendChild(row);
+                    
+                    // Обновляем общую статистику
+                    totalOrders++;
+                    totalItems += parseInt(order.quantity);
+                    
+                    // Преобразуем время в секунды
+                    const timeParts = order.time.split(':');
+                    const hours = parseInt(timeParts[0]);
+                    const minutes = parseInt(timeParts[1]);
+                    const seconds = parseInt(timeParts[2]);
+                    totalSeconds += hours * 3600 + minutes * 60 + seconds;
+                    
+                    // Обновляем статистику по типам
+                    if (typeStats[order.type]) {
+                        typeStats[order.type].orders++;
+                        typeStats[order.type].items += parseInt(order.quantity);
+                        typeStats[order.type].seconds += hours * 3600 + minutes * 60 + seconds;
+                    } else {
+                        typeStats['OTHER'].orders++;
+                        typeStats['OTHER'].items += parseInt(order.quantity);
+                        typeStats['OTHER'].seconds += hours * 3600 + minutes * 60 + seconds;
+                    }
+                });
             }
             
-            // Сортируем заказы по дате (новые сверху)
-            orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Обновляем общую статистику
+            document.getElementById('totalOrders').textContent = `Всего заказов: ${totalOrders}`;
+            document.getElementById('totalItems').textContent = `Всего единиц: ${totalItems}`;
+            document.getElementById('totalTime').textContent = `Общее время: ${formatTimeFromSeconds(totalSeconds)}`;
             
-            orders.forEach(order => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${order.name}</td>
-                    <td>${order.time}</td>
-                    <td>${order.quantity} шт.</td>
-                `;
-                ordersBody.appendChild(row);
-            });
+            // Обновляем статистику по типам
+            updateTypeStats('KKP', typeStats['KKP']);
+            updateTypeStats('EUR', typeStats['EUR']);
+            updateTypeStats('MIXGP', typeStats['MIXGP']);
+            updateTypeStats('OTHER', typeStats['OTHER']);
+        }
+
+        // Обновить статистику для конкретного типа
+        function updateTypeStats(type, stats) {
+            document.getElementById(`${type.toLowerCase()}Orders`).textContent = `Заказов: ${stats.orders}`;
+            document.getElementById(`${type.toLowerCase()}Items`).textContent = `Единиц: ${stats.items}`;
+            document.getElementById(`${type.toLowerCase()}Time`).textContent = `Время: ${formatTimeFromSeconds(stats.seconds)}`;
+            
+            // Скрываем блоки статистики для типов без заказов
+            const statBlock = document.getElementById(`${type.toLowerCase()}Stats`);
+            if (stats.orders === 0) {
+                statBlock.style.display = 'none';
+            } else {
+                statBlock.style.display = 'block';
+            }
+        }
+
+        // Форматировать секунды в HH:MM:SS
+        function formatTimeFromSeconds(totalSeconds) {
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+            const seconds = String(totalSeconds % 60).padStart(2, "0");
+            return `${hours}:${minutes}:${seconds}`;
         }
 
         // Очистить историю
@@ -745,7 +899,7 @@
             window.open('orders-history.html', '_blank');
         }
 
-        // Обработка скрытия/открытия вкладки
+        // Обработка скрытия/открытия вкладка
         function handleVisibilityChange() {
             const timers = [timer1, timer2, timer3];
 
