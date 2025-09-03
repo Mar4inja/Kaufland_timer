@@ -404,11 +404,10 @@
     <div class="container">
         <div class="kauflandTimerLogo">
             <img src="image/fef498e520a904df12c6dea732613be8.png" alt="Kaufland" />
-    
         </div>
 
         <div class="timers-container">
-            <!-- Таймер 1 -->
+            <!-- Единственный таймер -->
             <div class="timerContainer" id="timer1">
                 <div class="inputWrapper">
                     <input type="text" id="taskInput1" placeholder="Название заказа..." readonly />
@@ -416,38 +415,6 @@
                     <button class="editIcon"><i class="fas fa-edit"></i></button>
                 </div>
                 <div class="timer-display" id="timerDisplay1">00:00:00</div>
-                <div class="controls">
-                    <button class="startBtn"><i class="fas fa-play"></i></button>
-                    <button class="stopBtn"><i class="fas fa-pause"></i></button>
-                    <button class="resetBtn"><i class="fas fa-stop"></i></button>
-                    <button class="addBtn"><i class="fas fa-plus"></i></button>
-                </div>
-            </div>
-
-            <!-- Таймер 2 -->
-            <div class="timerContainer" id="timer2">
-                <div class="inputWrapper">
-                    <input type="text" id="taskInput2" placeholder="Название заказа..." readonly />
-                    <button class="saveBtn"><i class="fas fa-check"></i></button>
-                    <button class="editIcon"><i class="fas fa-edit"></i></button>
-                </div>
-                <div class="timer-display" id="timerDisplay2">00:00:00</div>
-                <div class="controls">
-                    <button class="startBtn"><i class="fas fa-play"></i></button>
-                    <button class="stopBtn"><i class="fas fa-pause"></i></button>
-                    <button class="resetBtn"><i class="fas fa-stop"></i></button>
-                    <button class="addBtn"><i class="fas fa-plus"></i></button>
-                </div>
-            </div>
-
-            <!-- Таймер 3 -->
-            <div class="timerContainer" id="timer3">
-                <div class="inputWrapper">
-                    <input type="text" id="taskInput3" placeholder="Название заказа..." readonly />
-                    <button class="saveBtn"><i class="fas fa-check"></i></button>
-                    <button class="editIcon"><i class="fas fa-edit"></i></button>
-                </div>
-                <div class="timer-display" id="timerDisplay3">00:00:00</div>
                 <div class="controls">
                     <button class="startBtn"><i class="fas fa-play"></i></button>
                     <button class="stopBtn"><i class="fas fa-pause"></i></button>
@@ -492,9 +459,7 @@
                             <th>Количество</th>
                         </tr>
                     </thead>
-                    <tbody id="ordersBody">
-                        <!-- Данные будут добавляться через JS -->
-                    </tbody>
+                    <tbody id="ordersBody"></tbody>
                 </table>
             </div>
             
@@ -544,413 +509,273 @@
     </div>
 
     <script>
-        // Класс для управления таймером
-        class Timer {
-            constructor(id, taskInputId, displayId) {
-                this.id = id; // id таймера
-                this.seconds = 0; // количество секунд
-                this.interval = null; // хранит setInterval
-                this.lastUpdateTime = Date.now(); // время последнего обновления
-                this.isRunning = false; // флаг запущен ли таймер
-                this.isPaused = false; // флаг стоит ли таймер на паузе
-                this.orderName = ""; // имя заказа
+    class Timer {
+        constructor(id, taskInputId, displayId) {
+            this.id = id;
+            this.seconds = 0;
+            this.interval = null;
+            this.startTime = null;
+            this.isRunning = false;
+            this.isPaused = false;
+            this.orderName = "";
 
-                // Элементы из DOM
-                this.container = document.getElementById(`timer${id}`);
-                this.taskInput = document.getElementById(taskInputId);
-                this.display = document.getElementById(displayId);
-                this.startBtn = this.container.querySelector('.startBtn');
-                this.stopBtn = this.container.querySelector('.stopBtn');
-                this.resetBtn = this.container.querySelector('.resetBtn');
-                this.addBtn = this.container.querySelector('.addBtn');
-                this.saveBtn = this.container.querySelector('.saveBtn');
-                this.editIcon = this.container.querySelector('.editIcon');
+            this.container = document.getElementById(`timer${id}`);
+            this.taskInput = document.getElementById(taskInputId);
+            this.display = document.getElementById(displayId);
+            this.startBtn = this.container.querySelector('.startBtn');
+            this.stopBtn = this.container.querySelector('.stopBtn');
+            this.resetBtn = this.container.querySelector('.resetBtn');
+            this.addBtn = this.container.querySelector('.addBtn');
+            this.saveBtn = this.container.querySelector('.saveBtn');
+            this.editIcon = this.container.querySelector('.editIcon');
 
-                // Загружаем данные из localStorage
-                this.loadSavedData();
+            this.loadSavedData();
+            this.updateDisplay();
+            this.setupEventListeners();
+        }
 
-                // Обновляем дисплей и вешаем события
-                this.updateDisplay();
-                this.setupEventListeners();
+        loadSavedData() {
+            const savedSeconds = localStorage.getItem(`timer${this.id}-seconds`);
+            const savedName = localStorage.getItem(`timer${this.id}-name`);
+            const savedState = localStorage.getItem(`timer${this.id}-state`);
+
+            if (savedSeconds) this.seconds = parseInt(savedSeconds, 10);
+            if (savedName) {
+                this.taskInput.value = savedName;
+                this.orderName = savedName;
             }
 
-            // Загружаем сохранённые данные из localStorage
-            loadSavedData() {
-                const savedSeconds = localStorage.getItem(`timer${this.id}-seconds`);
-                const savedName = localStorage.getItem(`timer${this.id}-name`);
-                const savedState = localStorage.getItem(`timer${this.id}-state`);
-                const savedTimestamp = localStorage.getItem(`timer${this.id}-timestamp`);
-
-                if (savedSeconds) this.seconds = parseInt(savedSeconds, 10);
-                if (savedName) {
-                    this.taskInput.value = savedName;
-                    this.orderName = savedName;
-                }
-
-                if (savedState === 'running' && savedTimestamp) {
-                    const timeDiff = Math.floor((Date.now() - parseInt(savedTimestamp)) / 1000);
-                    this.seconds += timeDiff;
-                    this.start();
-                } else if (savedState === 'paused') {
-                    this.isPaused = true;
-                    this.addBtn.style.display = 'block';
-                }
-            }
-
-            // Вешаем обработчики кнопок
-            setupEventListeners() {
-                this.startBtn.addEventListener('click', () => this.start());
-                this.stopBtn.addEventListener('click', () => this.stop());
-                this.resetBtn.addEventListener('click', () => this.reset());
-                this.addBtn.addEventListener('click', () => this.openAddModal());
-
-                this.editIcon.addEventListener('click', () => {
-                    this.taskInput.readOnly = false;
-                    this.taskInput.focus();
-                    this.saveBtn.style.display = 'block';
-                    this.editIcon.style.display = 'none';
-                });
-
-                this.saveBtn.addEventListener('click', () => {
-                    this.taskInput.readOnly = true;
-                    this.saveBtn.style.display = 'none';
-                    this.editIcon.style.display = 'block';
-                    this.orderName = this.taskInput.value;
-                    localStorage.setItem(`timer${this.id}-name`, this.orderName);
-                });
-            }
-
-            // Форматируем секунды в HH:MM:SS
-            formatTime(totalSeconds) {
-                const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-                const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-                const seconds = String(totalSeconds % 60).padStart(2, "0");
-                return `${hours}:${minutes}:${seconds}`;
-            }
-
-            // Обновляем отображение времени
-            updateDisplay() {
-                this.display.textContent = this.formatTime(this.seconds);
-            }
-
-            // Запуск таймера
-            start() {
-                if (this.interval) return;
-
-                this.isRunning = true;
-                this.isPaused = false;
-                this.lastUpdateTime = Date.now();
-
-                this.addBtn.style.display = 'none';
-
-                this.interval = setInterval(() => {
-                    const now = Date.now();
-                    const diff = Math.floor((now - this.lastUpdateTime) / 1000);
-                    if (diff > 0) {
-                        this.seconds += diff;
-                        this.lastUpdateTime = now;
-                        this.updateDisplay();
-                        localStorage.setItem(`timer${this.id}-seconds`, this.seconds);
-                    }
-                }, 200);
-
-                localStorage.setItem(`timer${this.id}-state`, 'running');
-                localStorage.setItem(`timer${this.id}-timestamp`, Date.now());
-            }
-
-            // Остановка (пауза)
-            stop() {
-                if (!this.interval) return;
-
-                clearInterval(this.interval);
-                this.interval = null;
-                this.isRunning = false;
+            if (savedState === 'running') {
+                this.start();
+            } else if (savedState === 'paused') {
                 this.isPaused = true;
-
                 this.addBtn.style.display = 'block';
-
-                localStorage.setItem(`timer${this.id}-state`, 'paused');
-                localStorage.removeItem(`timer${this.id}-timestamp`);
-            }
-
-            // Сброс таймера
-            reset() {
-                this.stop();
-                this.seconds = 0;
-                this.isPaused = false;
-                this.updateDisplay();
-                localStorage.setItem(`timer${this.id}-seconds`, this.seconds);
-                localStorage.setItem(`timer${this.id}-state`, 'stopped');
-                localStorage.removeItem(`timer${this.id}-timestamp`);
-
-                this.addBtn.style.display = 'none';
-            }
-
-            // Открыть модальное окно добавления заказа
-            openAddModal() {
-                if (!this.isPaused) return;
-
-                localStorage.setItem('currentTimerId', this.id);
-
-                modal.style.display = 'block';
-            }
-
-            // Сохранение заказа
-            saveOrder(orderType, quantity) {
-                const order = {
-                    timerId: this.id,
-                    name: this.orderName || 'Без названия',
-                    type: orderType,
-                    time: this.formatTime(this.seconds),
-                    quantity: quantity,
-                    date: new Date().toISOString()
-                };
-
-                const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
-
-                orders.push(order);
-
-                localStorage.setItem('timerOrders', JSON.stringify(orders));
-
-                this.reset();
             }
         }
 
-        // Глобальные переменные для трёх таймеров и модалки
-        let timer1, timer2, timer3;
-        let modal, closeModal, orderTypeSelect, quantityInput, saveOrderBtn;
+        setupEventListeners() {
+            this.startBtn.addEventListener('click', () => this.start());
+            this.stopBtn.addEventListener('click', () => this.stop());
+            this.resetBtn.addEventListener('click', () => this.reset());
+            this.addBtn.addEventListener('click', () => this.openAddModal());
 
-        // Инициализация после загрузки DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            timer1 = new Timer(1, 'taskInput1', 'timerDisplay1');
-            timer2 = new Timer(2, 'taskInput2', 'timerDisplay2');
-            timer3 = new Timer(3, 'taskInput3', 'timerDisplay3');
-
-            modal = document.getElementById('modal');
-            closeModal = document.querySelector('.close');
-            orderTypeSelect = document.getElementById('orderType');
-            quantityInput = document.getElementById('quantity');
-            saveOrderBtn = document.getElementById('saveOrderBtn');
-            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-            const viewHistoryBtn = document.getElementById('viewHistoryBtn');
-
-            closeModal.addEventListener('click', closeModalFunc);
-            saveOrderBtn.addEventListener('click', saveOrderHandler);
-            clearHistoryBtn.addEventListener('click', clearHistory);
-            viewHistoryBtn.addEventListener('click', viewHistory);
-
-            window.addEventListener('click', function(event) {
-                if (event.target === modal) {
-                    closeModalFunc();
-                }
+            this.editIcon.addEventListener('click', () => {
+                this.taskInput.readOnly = false;
+                this.taskInput.focus();
+                this.saveBtn.style.display = 'block';
+                this.editIcon.style.display = 'none';
             });
 
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-
-            window.addEventListener('blur', handleWindowBlur);
-            window.addEventListener('focus', handleWindowFocus);
-
-            // Загружаем историю заказов
-            loadOrders();
-        });
-
-        // Закрыть модалку
-        function closeModalFunc() {
-            modal.style.display = 'none';
+            this.saveBtn.addEventListener('click', () => {
+                this.taskInput.readOnly = true;
+                this.saveBtn.style.display = 'none';
+                this.editIcon.style.display = 'block';
+                this.orderName = this.taskInput.value;
+                localStorage.setItem(`timer${this.id}-name`, this.orderName);
+            });
         }
 
-        // Сохранить заказ
-        function saveOrderHandler() {
-            const orderType = orderTypeSelect.value;
-            const quantity = parseInt(quantityInput.value);
-            
-            if (isNaN(quantity) || quantity <= 0) {
-                alert('Пожалуйста, введите корректное количество');
-                return;
-            }
-
-            const timerId = localStorage.getItem('currentTimerId');
-
-            if (timerId === '1') {
-                timer1.saveOrder(orderType, quantity);
-            } else if (timerId === '2') {
-                timer2.saveOrder(orderType, quantity);
-            } else if (timerId === '3') {
-                timer3.saveOrder(orderType, quantity);
-            }
-
-            closeModalFunc();
-            loadOrders(); // Обновляем таблицу заказов и статистику
-
-            quantityInput.value = 1;
-        }
-
-        // Загрузить заказы в таблицу и обновить статистику
-        function loadOrders() {
-            const ordersBody = document.getElementById('ordersBody');
-            ordersBody.innerHTML = '';
-            
-            const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
-            
-            // Статистика
-            let totalOrders = 0;
-            let totalItems = 0;
-            let totalSeconds = 0;
-            
-            // Статистика по типам
-            const typeStats = {
-                'KKP': { orders: 0, items: 0, seconds: 0 },
-                'EUR': { orders: 0, items: 0, seconds: 0 },
-                'MIXGP': { orders: 0, items: 0, seconds: 0 },
-                'OTHER': { orders: 0, items: 0, seconds: 0 }
-            };
-            
-            if (orders.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="4" style="text-align: center;">Нет сохраненных заказов</td>`;
-                ordersBody.appendChild(row);
-            } else {
-                // Сортируем заказы по дате (новые сверху)
-                orders.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                orders.forEach(order => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${order.name}</td>
-                        <td>${order.type}</td>
-                        <td>${order.time}</td>
-                        <td>${order.quantity} шт.</td>
-                    `;
-                    ordersBody.appendChild(row);
-                    
-                    // Обновляем общую статистику
-                    totalOrders++;
-                    totalItems += parseInt(order.quantity);
-                    
-                    // Преобразуем время в секунды
-                    const timeParts = order.time.split(':');
-                    const hours = parseInt(timeParts[0]);
-                    const minutes = parseInt(timeParts[1]);
-                    const seconds = parseInt(timeParts[2]);
-                    totalSeconds += hours * 3600 + minutes * 60 + seconds;
-                    
-                    // Обновляем статистику по типам
-                    if (typeStats[order.type]) {
-                        typeStats[order.type].orders++;
-                        typeStats[order.type].items += parseInt(order.quantity);
-                        typeStats[order.type].seconds += hours * 3600 + minutes * 60 + seconds;
-                    } else {
-                        typeStats['OTHER'].orders++;
-                        typeStats['OTHER'].items += parseInt(order.quantity);
-                        typeStats['OTHER'].seconds += hours * 3600 + minutes * 60 + seconds;
-                    }
-                });
-            }
-            
-            // Обновляем общую статистику
-            document.getElementById('totalOrders').textContent = `Всего заказов: ${totalOrders}`;
-            document.getElementById('totalItems').textContent = `Всего единиц: ${totalItems}`;
-            document.getElementById('totalTime').textContent = `Общее время: ${formatTimeFromSeconds(totalSeconds)}`;
-            
-            // Обновляем статистику по типам
-            updateTypeStats('KKP', typeStats['KKP']);
-            updateTypeStats('EUR', typeStats['EUR']);
-            updateTypeStats('MIXGP', typeStats['MIXGP']);
-            updateTypeStats('OTHER', typeStats['OTHER']);
-        }
-
-        // Обновить статистику для конкретного типа
-        function updateTypeStats(type, stats) {
-            document.getElementById(`${type.toLowerCase()}Orders`).textContent = `Заказов: ${stats.orders}`;
-            document.getElementById(`${type.toLowerCase()}Items`).textContent = `Единиц: ${stats.items}`;
-            document.getElementById(`${type.toLowerCase()}Time`).textContent = `Время: ${formatTimeFromSeconds(stats.seconds)}`;
-            
-            // Скрываем блоки статистики для типов без заказов
-            const statBlock = document.getElementById(`${type.toLowerCase()}Stats`);
-            if (stats.orders === 0) {
-                statBlock.style.display = 'none';
-            } else {
-                statBlock.style.display = 'block';
-            }
-        }
-
-        // Форматировать секунды в HH:MM:SS
-        function formatTimeFromSeconds(totalSeconds) {
+        formatTime(totalSeconds) {
             const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
             const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
             const seconds = String(totalSeconds % 60).padStart(2, "0");
             return `${hours}:${minutes}:${seconds}`;
         }
 
-        // Очистить историю
-        function clearHistory() {
-            if (confirm('Вы уверены, что хотите очистить историю заказов?')) {
-                localStorage.removeItem('timerOrders');
-                loadOrders();
-            }
+        updateDisplay() {
+            this.display.textContent = this.formatTime(this.seconds);
         }
 
-        // Переход на страницу истории
-        function viewHistory() {
-            // Сохраняем данные в localStorage для передачи на другую страницу
-            localStorage.setItem('fromMainPage', 'true');
-            
-            // Открываем новую страницу с историей
-            window.open('orders-history.html', '_blank');
+        start() {
+            if (this.isRunning) return;
+            this.isRunning = true;
+            this.isPaused = false;
+            this.startTime = Date.now() - this.seconds * 1000;
+            this.addBtn.style.display = 'none';
+
+            this.interval = setInterval(() => {
+                this.seconds = Math.floor((Date.now() - this.startTime) / 1000);
+                this.updateDisplay();
+                localStorage.setItem(`timer${this.id}-seconds`, this.seconds);
+            }, 1000);
+
+            localStorage.setItem(`timer${this.id}-state`, 'running');
         }
 
-        // Обработка скрытия/открытия вкладка
-        function handleVisibilityChange() {
-            const timers = [timer1, timer2, timer3];
+        stop() {
+            if (!this.isRunning) return;
+            clearInterval(this.interval);
+            this.interval = null;
+            this.isRunning = false;
+            this.isPaused = true;
 
-            timers.forEach(timer => {
-                if (document.hidden && timer.isRunning) {
-                    localStorage.setItem(`timer${timer.id}-timestamp`, Date.now());
-                } else if (!document.hidden && timer.isRunning) {
-                    const savedTime = localStorage.getItem(`timer${timer.id}-timestamp`);
-                    if (savedTime) {
-                        const timeDiff = Math.floor((Date.now() - parseInt(savedTime)) / 1000);
-                        timer.seconds += timeDiff;
-                        timer.lastUpdateTime = Date.now();
-                        timer.updateDisplay();
-                        localStorage.setItem(`timer${timer.id}-seconds`, timer.seconds);
-                        localStorage.setItem(`timer${timer.id}-timestamp`, Date.now());
-                    }
+            this.seconds = Math.floor((Date.now() - this.startTime) / 1000);
+            this.updateDisplay();
+            this.addBtn.style.display = 'block';
+
+            localStorage.setItem(`timer${this.id}-seconds`, this.seconds);
+            localStorage.setItem(`timer${this.id}-state`, 'paused');
+        }
+
+        reset() {
+            clearInterval(this.interval);
+            this.interval = null;
+            this.isRunning = false;
+            this.isPaused = false;
+            this.seconds = 0;
+            this.updateDisplay();
+
+            localStorage.setItem(`timer${this.id}-seconds`, this.seconds);
+            localStorage.setItem(`timer${this.id}-state`, 'stopped');
+            this.addBtn.style.display = 'none';
+        }
+
+        openAddModal() {
+            if (!this.isPaused) return;
+            localStorage.setItem('currentTimerId', this.id);
+            modal.style.display = 'block';
+        }
+
+        saveOrder(orderType, quantity) {
+            const order = {
+                timerId: this.id,
+                name: this.orderName || 'Без названия',
+                type: orderType,
+                time: this.formatTime(this.seconds),
+                quantity: quantity,
+                date: new Date().toISOString()
+            };
+
+            const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
+            orders.push(order);
+            localStorage.setItem('timerOrders', JSON.stringify(orders));
+
+            this.reset();
+        }
+    }
+
+    let timer1;
+    let modal, closeModal, orderTypeSelect, quantityInput, saveOrderBtn;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        timer1 = new Timer(1, 'taskInput1', 'timerDisplay1');
+
+        modal = document.getElementById('modal');
+        closeModal = document.querySelector('.close');
+        orderTypeSelect = document.getElementById('orderType');
+        quantityInput = document.getElementById('quantity');
+        saveOrderBtn = document.getElementById('saveOrderBtn');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+
+        closeModal.addEventListener('click', closeModalFunc);
+        saveOrderBtn.addEventListener('click', saveOrderHandler);
+        clearHistoryBtn.addEventListener('click', clearHistory);
+        viewHistoryBtn.addEventListener('click', viewHistory);
+
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) closeModalFunc();
+        });
+
+        loadOrders();
+    });
+
+    function closeModalFunc() {
+        modal.style.display = 'none';
+    }
+
+    function saveOrderHandler() {
+        const orderType = orderTypeSelect.value;
+        const quantity = parseInt(quantityInput.value);
+        if (isNaN(quantity) || quantity <= 0) {
+            alert('Пожалуйста, введите корректное количество');
+            return;
+        }
+        const timerId = localStorage.getItem('currentTimerId');
+        if (timerId === '1') timer1.saveOrder(orderType, quantity);
+
+        closeModalFunc();
+        loadOrders();
+        quantityInput.value = 1;
+    }
+
+    function loadOrders() {
+        const ordersBody = document.getElementById('ordersBody');
+        ordersBody.innerHTML = '';
+        const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
+
+        let totalOrders = 0, totalItems = 0, totalSeconds = 0;
+        const typeStats = { KKP:{orders:0,items:0,seconds:0}, EUR:{}, MIXGP:{}, OTHER:{} };
+        for (let key in typeStats) typeStats[key] = {orders:0, items:0, seconds:0};
+
+        if (orders.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="4" style="text-align: center;">Нет сохраненных заказов</td>`;
+            ordersBody.appendChild(row);
+        } else {
+            orders.sort((a,b) => new Date(b.date)-new Date(a.date));
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.name}</td>
+                    <td>${order.type}</td>
+                    <td>${order.time}</td>
+                    <td>${order.quantity} шт.</td>
+                `;
+                ordersBody.appendChild(row);
+
+                totalOrders++;
+                totalItems += parseInt(order.quantity);
+                const [h,m,s] = order.time.split(':').map(Number);
+                const orderSec = h*3600+m*60+s;
+                totalSeconds += orderSec;
+                if (typeStats[order.type]) {
+                    typeStats[order.type].orders++;
+                    typeStats[order.type].items += parseInt(order.quantity);
+                    typeStats[order.type].seconds += orderSec;
+                } else {
+                    typeStats.OTHER.orders++;
+                    typeStats.OTHER.items += parseInt(order.quantity);
+                    typeStats.OTHER.seconds += orderSec;
                 }
             });
         }
 
-        // Обработка ухода из окна
-        function handleWindowBlur() {
-            const timers = [timer1, timer2, timer3];
+        document.getElementById('totalOrders').textContent = `Всего заказов: ${totalOrders}`;
+        document.getElementById('totalItems').textContent = `Всего единиц: ${totalItems}`;
+        document.getElementById('totalTime').textContent = `Общее время: ${formatTimeFromSeconds(totalSeconds)}`;
+        updateTypeStats('KKP', typeStats.KKP);
+        updateTypeStats('EUR', typeStats.EUR);
+        updateTypeStats('MIXGP', typeStats.MIXGP);
+        updateTypeStats('OTHER', typeStats.OTHER);
+    }
 
-            timers.forEach(timer => {
-                if (timer.isRunning) {
-                    localStorage.setItem(`timer${timer.id}-timestamp`, Date.now());
-                }
-            });
+    function updateTypeStats(type, stats) {
+        document.getElementById(`${type.toLowerCase()}Orders`).textContent = `Заказов: ${stats.orders}`;
+        document.getElementById(`${type.toLowerCase()}Items`).textContent = `Единиц: ${stats.items}`;
+        document.getElementById(`${type.toLowerCase()}Time`).textContent = `Время: ${formatTimeFromSeconds(stats.seconds)}`;
+        document.getElementById(`${type.toLowerCase()}Stats`).style.display = stats.orders===0?'none':'block';
+    }
+
+    function formatTimeFromSeconds(totalSeconds) {
+        const hours = String(Math.floor(totalSeconds/3600)).padStart(2,"0");
+        const minutes = String(Math.floor((totalSeconds%3600)/60)).padStart(2,"0");
+        const seconds = String(totalSeconds%60).padStart(2,"0");
+        return `${hours}:${minutes}:${seconds}`;
+    }
+
+    function clearHistory() {
+        if (confirm('Вы уверены, что хотите очистить историю заказов?')) {
+            localStorage.removeItem('timerOrders');
+            loadOrders();
         }
+    }
 
-        // Обработка возврата в окно
-        function handleWindowFocus() {
-            const timers = [timer1, timer2, timer3];
-
-            timers.forEach(timer => {
-                if (timer.isRunning) {
-                    const savedTime = localStorage.getItem(`timer${timer.id}-timestamp`);
-                    if (savedTime) {
-                        const timeDiff = Math.floor((Date.now() - parseInt(savedTime)) / 1000);
-                        if (timeDiff > 0) {
-                            timer.seconds += timeDiff;
-                            timer.lastUpdateTime = Date.now();
-                            timer.updateDisplay();
-                            localStorage.setItem(`timer${timer.id}-seconds`, timer.seconds);
-                        }
-                    }
-                    localStorage.setItem(`timer${timer.id}-timestamp`, Date.now());
-                }
-            });
-        }
+    function viewHistory() {
+        localStorage.setItem('fromMainPage','true');
+        window.open('orders-history.html','_blank');
+    }
     </script>
 </body>
+
 </html>
