@@ -649,27 +649,41 @@
         Object.keys(typeStats).forEach(type => updateTypeStats(type, typeStats[type]));
     }
 
-    function updateTypeStats(type, stats) {
-        const normPerHour = { KKP: 205, EUR: 150, MIXGP: 150, OTHER: 150 };
-        const container = document.getElementById(`${type}Stats`);
+   function updateTypeStats(type, stats) {
+    const normPerHour = { KKP: 205, EUR: 150, MIXGP: 150, OTHER: 150 };
+    const container = document.getElementById(`${type}Stats`);
 
-        // Добавляем кнопку расчета процента, если нет
-        if (!container.querySelector('.percentBtn')) {
-            const btn = document.createElement('button'); btn.className = 'percentBtn';
-            btn.textContent = 'Процент выполнения';
-            btn.addEventListener('click', () => {
-                const hoursWorked = stats.seconds / 3600;
-                const normTotal = normPerHour[type] * hoursWorked;
-                const percent = hoursWorked > 0 ? Math.min((stats.items / normTotal) * 100, 100).toFixed(1) : 0;
-                alert(`${type}: ${percent}% выполнения нормы`);
-            });
-            container.appendChild(btn);
+    // удаляем старую кнопку если есть, чтобы не дублировалась
+    const oldBtn = container.querySelector('.percentBtn');
+    if (oldBtn) oldBtn.remove();
+
+    // считаем процент выполнения
+    let totalPercent = 0;
+    const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
+    orders.forEach(order => {
+        if (order.type === type || (type === 'OTHER' && !['KKP','EUR','MIXGP'].includes(order.type))) {
+            const [h, m, s] = order.time.split(':').map(Number);
+            const hoursWorked = h + m / 60 + s / 3600;
+            if (hoursWorked > 0) totalPercent += order.quantity / (normPerHour[type] * hoursWorked) * 100;
         }
+    });
+    totalPercent = Math.min(totalPercent, 100).toFixed(1); // ограничиваем 100%
 
-        document.getElementById(`${type.toLowerCase()}Orders`).textContent = `Заказов: ${stats.orders}`;
-        document.getElementById(`${type.toLowerCase()}Items`).textContent = `Единиц: ${stats.items}`;
-        document.getElementById(`${type.toLowerCase()}Time`).textContent = `Время: ${formatTimeFromSeconds(stats.seconds)}`;
-    }
+    // создаём кнопку расчёта процента
+    const btn = document.createElement('button');
+    btn.className = 'percentBtn';
+    btn.textContent = 'Процент выполнения';
+    btn.addEventListener('click', () => {
+        alert(`${type}: ${totalPercent}% выполнения нормы`);
+    });
+    container.appendChild(btn);
+
+    // обновляем статистику на карточке
+    document.getElementById(`${type.toLowerCase()}Orders`).textContent = `Заказов: ${stats.orders}`;
+    document.getElementById(`${type.toLowerCase()}Items`).textContent = `Единиц: ${stats.items}`;
+    document.getElementById(`${type.toLowerCase()}Time`).textContent = `Время: ${formatTimeFromSeconds(stats.seconds)}`;
+}
+
 
     function formatTimeFromSeconds(totalSeconds) { const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0'); const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0'); const s = String(totalSeconds % 60).padStart(2, '0'); return `${h}:${m}:${s}`; }
 
