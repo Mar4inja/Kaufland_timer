@@ -114,22 +114,47 @@
             background-color: #f1f1f1;
         }
 
-        .clear-btn,
-        .export-btn {
-            display: block;
-            margin: 20px auto 0;
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .btn {
             padding: 10px 20px;
-            background: #dc3545;
-            color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
+            color: white;
             transition: 0.3s;
         }
 
-        .clear-btn:hover,
-        .export-btn:hover {
-            background: #c82333;
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-clear {
+            background: #dc3545;
+        }
+
+        .btn-import {
+            background: #17a2b8;
+        }
+
+        .btn-export-pdf {
+            background: #28a745;
+        }
+
+        .btn-export-json {
+            background: #ffc107;
+            color: #000;
+        }
+
+        input[type=file] {
+            display: none;
         }
     </style>
 </head>
@@ -160,22 +185,28 @@
                     <tbody id="ordersBody"></tbody>
                 </table>
             </div>
-            <button id="clearHistoryBtn" class="clear-btn">Clear History</button>
-            <button id="exportPdfBtn" class="export-btn">Export to PDF</button>
+            <div class="button-row">
+                <button id="clearHistoryBtn" class="btn btn-clear">Clear History</button>
+                <button id="exportPdfBtn" class="btn btn-export-pdf">Export PDF</button>
+                <button id="exportJsonBtn" class="btn btn-export-json">Export JSON</button>
+                <button id="importJsonBtn" class="btn btn-import">Import JSON</button>
+                <input type="file" id="importFile" accept=".json" />
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const ordersBody = document.getElementById('ordersBody');
             const clearHistoryBtn = document.getElementById('clearHistoryBtn');
             const exportPdfBtn = document.getElementById('exportPdfBtn');
+            const exportJsonBtn = document.getElementById('exportJsonBtn');
+            const importJsonBtn = document.getElementById('importJsonBtn');
+            const importFile = document.getElementById('importFile');
             const backBtn = document.getElementById('backBtn');
 
-            // Load orders from localStorage
             function loadOrders() {
                 ordersBody.innerHTML = '';
                 const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
@@ -197,7 +228,6 @@
 
             loadOrders();
 
-            // Clear history
             clearHistoryBtn.addEventListener('click', () => {
                 if (confirm('Are you sure you want to clear order history?')) {
                     localStorage.removeItem('timerOrders');
@@ -205,7 +235,6 @@
                 }
             });
 
-            // Export PDF
             exportPdfBtn.addEventListener('click', () => {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
@@ -213,20 +242,15 @@
                 doc.text("Kaufland Timer - Order History", 14, 20);
 
                 const orders = JSON.parse(localStorage.getItem("timerOrders")) || [];
-                if (!orders.length) {
-                    doc.setFontSize(12);
-                    doc.text("No data to export.", 14, 40);
-                    doc.save("kaufland_history.pdf");
-                    return;
-                }
+                if (!orders.length) { doc.setFontSize(12); doc.text("No data to export.", 14, 40); doc.save("kaufland_history.pdf"); return; }
 
                 const tableColumn = ["Order", "Type", "Time", "Quantity", "Date"];
                 const tableRows = [];
                 orders.sort((a, b) => new Date(b.date) - new Date(a.date));
-                orders.forEach(order => {
-                    const date = new Date(order.date);
+                orders.forEach(o => {
+                    const date = new Date(o.date);
                     const formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-                    tableRows.push([order.name || '-', order.type || 'OTHER', order.time || '00:00:00', order.quantity.toString(), formattedDate]);
+                    tableRows.push([o.name || '-', o.type || 'OTHER', o.time || '00:00:00', o.quantity.toString(), formattedDate]);
                 });
 
                 doc.autoTable({
@@ -240,7 +264,6 @@
                     margin: { top: 30 },
                 });
 
-                // Stats under table
                 const finalY = doc.lastAutoTable.finalY + 10;
                 let totalItems = 0, totalSeconds = 0;
                 orders.forEach(o => {
@@ -248,9 +271,9 @@
                     const [h, m, s] = o.time.split(":").map(Number);
                     totalSeconds += h * 3600 + m * 60 + s;
                 });
-                const th = String(Math.floor(totalSeconds / 3600)).padStart(2, "0"),
-                    tm = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0"),
-                    ts = String(totalSeconds % 60).padStart(2, "0");
+                const th = String(Math.floor(totalSeconds / 3600)).padStart(2, '0'),
+                    tm = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0'),
+                    ts = String(totalSeconds % 60).padStart(2, '0');
 
                 doc.setFontSize(12);
                 doc.text(`Total Orders: ${orders.length}`, 14, finalY);
@@ -260,15 +283,36 @@
                 doc.save("kaufland_history.pdf");
             });
 
-            // Back button logic
+            exportJsonBtn.addEventListener('click', () => {
+                const orders = JSON.parse(localStorage.getItem("timerOrders")) || [];
+                if (!orders.length) { alert("No data to export."); return; }
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orders, null, 2));
+                const dlAnchor = document.createElement('a');
+                dlAnchor.setAttribute("href", dataStr);
+                dlAnchor.setAttribute("download", "kaufland_history.json");
+                dlAnchor.click();
+            });
+
+            importJsonBtn.addEventListener('click', () => { importFile.click(); });
+
+            importFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const importedOrders = JSON.parse(event.target.result);
+                        if (!Array.isArray(importedOrders)) throw new Error("Invalid JSON structure");
+                        localStorage.setItem('timerOrders', JSON.stringify(importedOrders));
+                        loadOrders();
+                        alert("Orders imported successfully.");
+                    } catch (err) { alert("Failed to import JSON: " + err.message); }
+                };
+                reader.readAsText(file);
+            });
+
             backBtn.addEventListener('click', () => {
-                // Если окно открыто через JS -> закрываем
-                if (window.opener) {
-                    window.close();
-                } else {
-                    // Иначе переходим на index.html
-                    window.location.href = 'index.html';
-                }
+                if (window.opener) { window.close(); } else { window.location.href = 'index.html'; }
             });
         });
     </script>
