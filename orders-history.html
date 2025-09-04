@@ -138,11 +138,10 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="image/fef498e520a904df12c6dea732613be8.png"
-                    alt="Kaufland" />
+                <img src="image/fef498e520a904df12c6dea732613be8.png" alt="Kaufland" />
                 <h1>Order History</h1>
             </div>
-            <a href="javascript:window.close()" class="back-btn">Back to Timer</a>
+            <button id="backBtn" class="back-btn">Back to Timer</button>
         </div>
 
         <div class="orders-section">
@@ -174,7 +173,9 @@
             const ordersBody = document.getElementById('ordersBody');
             const clearHistoryBtn = document.getElementById('clearHistoryBtn');
             const exportPdfBtn = document.getElementById('exportPdfBtn');
+            const backBtn = document.getElementById('backBtn');
 
+            // Load orders from localStorage
             function loadOrders() {
                 ordersBody.innerHTML = '';
                 const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
@@ -196,6 +197,7 @@
 
             loadOrders();
 
+            // Clear history
             clearHistoryBtn.addEventListener('click', () => {
                 if (confirm('Are you sure you want to clear order history?')) {
                     localStorage.removeItem('timerOrders');
@@ -203,6 +205,7 @@
                 }
             });
 
+            // Export PDF
             exportPdfBtn.addEventListener('click', () => {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
@@ -255,6 +258,17 @@
                 doc.text(`Total Time: ${th}:${tm}:${ts}`, 14, finalY + 12);
 
                 doc.save("kaufland_history.pdf");
+            });
+
+            // Back button logic
+            backBtn.addEventListener('click', () => {
+                // Если окно открыто через JS -> закрываем
+                if (window.opener) {
+                    window.close();
+                } else {
+                    // Иначе переходим на index.html
+                    window.location.href = 'index.html';
+                }
             });
         });
     </script>
