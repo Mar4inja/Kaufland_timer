@@ -649,40 +649,43 @@
         Object.keys(typeStats).forEach(type => updateTypeStats(type, typeStats[type]));
     }
 
-   function updateTypeStats(type, stats) {
+function updateTypeStats(type, stats) {
     const normPerHour = { KKP: 205, EUR: 150, MIXGP: 150, OTHER: 150 };
     const container = document.getElementById(`${type}Stats`);
 
-    // удаляем старую кнопку если есть, чтобы не дублировалась
+    // Удаляем старую кнопку, если есть
     const oldBtn = container.querySelector('.percentBtn');
     if (oldBtn) oldBtn.remove();
 
-    // считаем процент выполнения
-    let totalPercent = 0;
+    // Считаем суммарное время всех заказов этого типа в часах
+    let totalHours = 0;
+    let totalItems = 0;
     const orders = JSON.parse(localStorage.getItem('timerOrders')) || [];
     orders.forEach(order => {
-        if (order.type === type || (type === 'OTHER' && !['KKP','EUR','MIXGP'].includes(order.type))) {
+        const orderType = ['KKP','EUR','MIXGP'].includes(order.type) ? order.type : 'OTHER';
+        if (orderType === type) {
             const [h, m, s] = order.time.split(':').map(Number);
-            const hoursWorked = h + m / 60 + s / 3600;
-            if (hoursWorked > 0) totalPercent += order.quantity / (normPerHour[type] * hoursWorked) * 100;
+            totalHours += h + m/60 + s/3600;
+            totalItems += parseInt(order.quantity);
         }
     });
-    totalPercent = Math.min(totalPercent, 100).toFixed(1); // ограничиваем 100%
 
-    // создаём кнопку расчёта процента
+    // Считаем процент без обрезки
+    let percent = 0;
+    if (totalHours > 0) percent = (totalItems / (normPerHour[type] * totalHours)) * 100;
+
     const btn = document.createElement('button');
     btn.className = 'percentBtn';
     btn.textContent = 'Процент выполнения';
-    btn.addEventListener('click', () => {
-        alert(`${type}: ${totalPercent}% выполнения нормы`);
-    });
+    btn.addEventListener('click', () => alert(`${type}: ${percent.toFixed(1)}% выполнения нормы`));
     container.appendChild(btn);
 
-    // обновляем статистику на карточке
+    // Обновляем статистику
     document.getElementById(`${type.toLowerCase()}Orders`).textContent = `Заказов: ${stats.orders}`;
     document.getElementById(`${type.toLowerCase()}Items`).textContent = `Единиц: ${stats.items}`;
     document.getElementById(`${type.toLowerCase()}Time`).textContent = `Время: ${formatTimeFromSeconds(stats.seconds)}`;
 }
+
 
 
     function formatTimeFromSeconds(totalSeconds) { const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0'); const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0'); const s = String(totalSeconds % 60).padStart(2, '0'); return `${h}:${m}:${s}`; }
